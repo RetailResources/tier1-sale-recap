@@ -16,8 +16,6 @@
       --summary-bg: #f7f7f7;
       --page-bg: #f3f3f3;
       --focus-bg: #fff8cc;
-      --error: #b00020;
-      --success: #1f7a1f;
     }
 
     * { box-sizing: border-box; }
@@ -39,57 +37,6 @@
       border: 2px solid var(--border);
       box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
     }
-
-    .top-auth-bar {
-      padding: 10px 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      border-bottom: 2px solid var(--border);
-      background: #fafafa;
-      flex-wrap: wrap;
-    }
-
-    .auth-left {
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .auth-email {
-      color: #111;
-      font-weight: 800;
-    }
-
-    .auth-actions {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-      flex-wrap: wrap;
-    }
-
-    .auth-actions input[type="email"] {
-      min-width: 220px;
-      padding: 8px 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      outline: none;
-      background: #fff;
-    }
-
-    .auth-actions input[type="email"]:focus {
-      border-color: #999;
-      background: var(--focus-bg);
-    }
-
-    .auth-message {
-      width: 100%;
-      font-size: 13px;
-      min-height: 16px;
-    }
-
-    .auth-message.error { color: var(--error); }
-    .auth-message.success { color: var(--success); }
 
     .title {
       padding: 10px 8px;
@@ -224,19 +171,6 @@
       color: #555555;
     }
 
-    .locked-overlay {
-      padding: 22px 16px;
-      text-align: center;
-      font-size: 15px;
-      font-weight: 700;
-      border-top: 2px solid var(--border);
-      border-bottom: 2px solid var(--border);
-      background: #fffdf5;
-      color: #333;
-    }
-
-    .hidden { display: none !important; }
-
     @media (max-width: 700px) {
       body { padding: 8px; }
       .title { font-size: 20px; }
@@ -253,44 +187,14 @@
       }
 
       button { width: 100%; }
-
-      .auth-actions { width: 100%; }
-
-      .auth-actions input[type="email"] {
-        width: 100%;
-        min-width: 0;
-      }
     }
   </style>
 </head>
 <body>
   <div class="app">
-    <div class="top-auth-bar">
-      <div class="auth-left">
-        Access:
-        <span id="auth-state">Not signed in</span>
-        <span id="auth-email" class="auth-email"></span>
-      </div>
-
-      <div class="auth-actions" id="login-actions">
-        <input id="email-input" type="email" placeholder="Enter authorized email" />
-        <button type="button" id="login-btn">Login</button>
-      </div>
-
-      <div class="auth-actions hidden" id="logout-actions">
-        <button type="button" id="logout-btn">Logout</button>
-      </div>
-
-      <div id="auth-message" class="auth-message"></div>
-    </div>
-
     <div class="title">SALE RECAP</div>
 
-    <div id="locked-overlay" class="locked-overlay">
-      Please log in with an approved email to access the bonus calculator.
-    </div>
-
-    <div id="calculator-content" class="hidden">
+    <div id="calculator-content">
       <table>
         <thead>
           <tr>
@@ -423,108 +327,6 @@
 
   <script>
     // =========================
-    // LOGIN CONFIG (MULTI EMAIL)
-    // Add/remove approved users here:
-    // =========================
-    const allowedEmails = [
-      "kevin.starke@connectivitysource.net",
-      "montoya@connectivitysource.net",
-      "beau.cumbie@connectivitysource.net",
-      "belen@connectivitysource.net",
-      "william.clark@connectivitysource.net",
-      "jeanelle.pazos@connectivitysource.net",
-      "joseph.mckee@connectivitysource.net",
-      "nicolas.odell@connectivitysource.net",
-      "steven@connectivitysource.net",
-      "erica@connectivitysource.net",
-      "david.lent@connectivitysource.net",
-      "gilberto.castillo@connectivitysource.net"
-    ].map((e) => e.trim().toLowerCase());
-
-    // =========================
-    // ELEMENTS
-    // =========================
-    const authState = document.getElementById("auth-state");
-    const authEmail = document.getElementById("auth-email");
-    const authMessage = document.getElementById("auth-message");
-
-    const loginActions = document.getElementById("login-actions");
-    const logoutActions = document.getElementById("logout-actions");
-
-    const emailInput = document.getElementById("email-input");
-    const loginBtn = document.getElementById("login-btn");
-    const logoutBtn = document.getElementById("logout-btn");
-
-    const lockedOverlay = document.getElementById("locked-overlay");
-    const calculatorContent = document.getElementById("calculator-content");
-
-    // =========================
-    // LOGIN FUNCTIONS
-    // =========================
-    function normalizeEmail(email) {
-      return String(email || "").trim().toLowerCase();
-    }
-
-    function setMessage(text, type = "") {
-      authMessage.textContent = text;
-      authMessage.className = "auth-message";
-      if (type) authMessage.classList.add(type);
-    }
-
-    function showAuthorizedUI(email) {
-      authState.textContent = "Signed in as";
-      authEmail.textContent = ` ${email}`;
-      loginActions.classList.add("hidden");
-      logoutActions.classList.remove("hidden");
-      lockedOverlay.classList.add("hidden");
-      calculatorContent.classList.remove("hidden");
-    }
-
-    function showUnauthorizedUI() {
-      authState.textContent = "Not signed in";
-      authEmail.textContent = "";
-      loginActions.classList.remove("hidden");
-      logoutActions.classList.add("hidden");
-      lockedOverlay.classList.remove("hidden");
-      calculatorContent.classList.add("hidden");
-    }
-
-    function login(email) {
-      localStorage.setItem("authorizedUserEmail", email);
-      setMessage("Access granted.", "success");
-      showAuthorizedUI(email);
-      calculateTotals();
-    }
-
-    function logout() {
-      localStorage.removeItem("authorizedUserEmail");
-      emailInput.value = "";
-      setMessage("");
-      showUnauthorizedUI();
-    }
-
-    function handleLogin() {
-      const email = normalizeEmail(emailInput.value);
-
-      if (!email) {
-        setMessage("Please enter an email address.", "error");
-        return;
-      }
-
-      if (!email.includes("@")) {
-        setMessage("Please enter a valid email address.", "error");
-        return;
-      }
-
-      if (!allowedEmails.includes(email)) {
-        setMessage("Access denied. Your email is not authorized.", "error");
-        return;
-      }
-
-      login(email);
-    }
-
-    // =========================
     // CALCULATOR FUNCTIONS
     // =========================
     function formatMoney(value) {
@@ -574,16 +376,6 @@
     // =========================
     // EVENT LISTENERS
     // =========================
-    loginBtn.addEventListener("click", handleLogin);
-
-    emailInput.addEventListener("keydown", (event) => {
-      if (event.key === "Enter") {
-        handleLogin();
-      }
-    });
-
-    logoutBtn.addEventListener("click", logout);
-
     document.querySelectorAll(".qty-input, .custom-total-input").forEach((input) => {
       input.addEventListener("input", calculateTotals);
     });
@@ -605,17 +397,6 @@
     // INITIALIZE
     // =========================
     calculateTotals();
-
-    // Force logout on every page load/refresh
-    localStorage.removeItem("authorizedUserEmail");
-
-    const savedEmail = normalizeEmail(localStorage.getItem("authorizedUserEmail"));
-    if (savedEmail && allowedEmails.includes(savedEmail)) {
-      showAuthorizedUI(savedEmail);
-      setMessage("");
-    } else {
-      showUnauthorizedUI();
-    }
   </script>
 </body>
 </html>
